@@ -24,6 +24,21 @@ struct ContentView: View {
                 .onDelete { indexSet in
                     deleteReminders(at: indexSet)
                 }
+                
+                // Add new reminder row at bottom
+                Button(action: {
+                    showingAddReminder = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle")
+                            .foregroundColor(.blue)
+                            .font(.title2)
+                        Text("New Reminder")
+                            .foregroundColor(.blue)
+                        Spacer()
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
             }
             .listStyle(PlainListStyle())
             
@@ -88,11 +103,39 @@ struct ReminderRow: View {
             }
             .buttonStyle(PlainButtonStyle())
             
-            Text(reminder.title)
-                .strikethrough(reminder.isCompleted)
-                .foregroundColor(reminder.isCompleted ? .gray : .primary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(reminder.title)
+                    .font(.title)
+                    .strikethrough(reminder.isCompleted)
+                    .foregroundColor(reminder.isCompleted ? .gray : .primary)
+                
+                if let dueDate = reminder.dueDate {
+                    Text(formatDueDate(dueDate))
+                        .font(.title2)
+                        .foregroundColor(dueDateColor(for: reminder))
+                }
+            }
             
             Spacer()
+        }
+    }
+    
+    private func formatDueDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    private func dueDateColor(for reminder: ReminderItem) -> Color {
+        if reminder.isCompleted {
+            return .gray
+        } else if reminder.isOverdue {
+            return .red
+        } else if reminder.isDueToday {
+            return .orange
+        } else {
+            return .secondary
         }
     }
 }

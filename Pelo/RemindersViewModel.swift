@@ -26,9 +26,9 @@ class RemindersViewModel: ObservableObject {
     
     // MARK: - Reminder Management
     
-    func addReminder(to listId: UUID, title: String) {
+    func addReminder(to listId: UUID, title: String, dueDate: Date? = nil) {
         guard let index = lists.firstIndex(where: { $0.id == listId }) else { return }
-        let newReminder = ReminderItem(title: title)
+        let newReminder = ReminderItem(title: title, dueDate: dueDate)
         lists[index].reminders.append(newReminder)
         saveData()
     }

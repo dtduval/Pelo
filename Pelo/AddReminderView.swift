@@ -11,6 +11,9 @@ struct AddReminderView: View {
     @ObservedObject var viewModel: RemindersViewModel
     
     @State private var reminderTitle = ""
+    @State private var hasDueDate = false
+    @State private var dueDate = Date()
+    @FocusState private var isTextFieldFocused: Bool
     
     var body: some View {
         #if os(iOS)
@@ -64,22 +67,49 @@ struct AddReminderView: View {
             }
             .padding()
         }
-        .frame(width: 400, height: 150)
+        .frame(width: 400, height: 200)
         #endif
     }
     
     private var formContent: some View {
         Form {
-            TextField("Reminder", text: $reminderTitle)
-                #if os(macOS)
-                .textFieldStyle(.roundedBorder)
-                #endif
+            Section {
+                TextField("Reminder", text: $reminderTitle)
+                    .focused($isTextFieldFocused)
+                    #if os(macOS)
+                    .textFieldStyle(.roundedBorder)
+                    #endif
+            }
+            
+            Section {
+                Toggle("Due Date", isOn: $hasDueDate)
+                
+                if hasDueDate {
+                    DatePicker("Date", selection: $dueDate, displayedComponents: [.date])
+                        #if os(macOS)
+                        .datePickerStyle(.field)
+                        #endif
+                }
+            }
+        }
+        .onAppear {
+            #if os(iOS)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                isTextFieldFocused = true
+            }
+            #else
+            isTextFieldFocused = true
+            #endif
         }
     }
     
     private func addReminder() {
         if !reminderTitle.isEmpty {
-            viewModel.addReminder(to: listId, title: reminderTitle)
+            viewModel.addReminder(
+                to: listId,
+                title: reminderTitle,
+                dueDate: hasDueDate ? dueDate : nil
+            )
             isPresented = false
         }
     }
