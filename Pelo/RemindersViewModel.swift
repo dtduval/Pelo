@@ -14,14 +14,35 @@ class RemindersViewModel: ObservableObject {
     init() {
         loadData()
         
-        // If no lists exist, create the default two lists
+        // If no lists exist, create the default INBOX
         if lists.isEmpty {
             lists = [
-                ReminderList(name: "INBOX", reminders: []),
-                ReminderList(name: "Work Prep", reminders: [])
+                ReminderList(name: "INBOX", reminders: [])
             ]
             saveData()
         }
+    }
+    
+    // MARK: - List Management
+    
+    func addList(name: String) {
+        let newList = ReminderList(name: name, reminders: [])
+        lists.append(newList)
+        saveData()
+    }
+    
+    func deleteList(id: UUID) {
+        // Don't allow deleting INBOX
+        guard let index = lists.firstIndex(where: { $0.id == id }),
+              lists[index].name != "INBOX" else { return }
+        lists.remove(at: index)
+        saveData()
+    }
+    
+    func renameList(id: UUID, newName: String) {
+        guard let index = lists.firstIndex(where: { $0.id == id }) else { return }
+        lists[index].name = newName
+        saveData()
     }
     
     // MARK: - Reminder Management
@@ -37,6 +58,14 @@ class RemindersViewModel: ObservableObject {
         guard let listIndex = lists.firstIndex(where: { $0.id == listId }),
               let reminderIndex = lists[listIndex].reminders.firstIndex(where: { $0.id == reminderId }) else { return }
         lists[listIndex].reminders[reminderIndex].isCompleted.toggle()
+        saveData()
+    }
+    
+    func updateReminder(in listId: UUID, reminderId: UUID, title: String, dueDate: Date?) {
+        guard let listIndex = lists.firstIndex(where: { $0.id == listId }),
+              let reminderIndex = lists[listIndex].reminders.firstIndex(where: { $0.id == reminderId }) else { return }
+        lists[listIndex].reminders[reminderIndex].title = title
+        lists[listIndex].reminders[reminderIndex].dueDate = dueDate
         saveData()
     }
     
