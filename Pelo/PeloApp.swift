@@ -2,8 +2,6 @@
 //  PeloApp.swift
 //  Pelo
 //
-//  Created by David Timothy Duval on 2025-10-03.
-//
 
 import SwiftUI
 
@@ -11,7 +9,9 @@ import SwiftUI
 struct PeloApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack {
+                ContentView()
+            }
         }
     }
 }
